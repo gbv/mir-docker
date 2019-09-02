@@ -11,6 +11,6 @@ COPY docker-entrypoint.sh /usr/local/bin/mir.sh
 RUN ["chmod", "+x", "/usr/local/bin/mir.sh"]
 RUN rm -rf /usr/local/tomcat/webapps/ROOT /usr/local/tomcat/webapps/*
 RUN curl "https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.mycore.mir&a=mir-webapp&v=${MIR_VERSION}&e=war">webapps/mir.war
-RUN cat /usr/local/tomcat/conf/server.xml | sed 's/"AJP\/1.3"/"AJP\/1.3" packetSize="${PACKET_SIZE}"/g' > /usr/local/tomcat/conf/server.xml.new
+RUN cat /usr/local/tomcat/conf/server.xml | sed "s/\"AJP\/1.3\"/\"AJP\/1.3\" packetSize=\"$PACKET_SIZE\"/g" > /usr/local/tomcat/conf/server.xml.new
 RUN mv /usr/local/tomcat/conf/server.xml.new /usr/local/tomcat/conf/server.xml
 CMD ["/usr/local/bin/mir.sh"]
