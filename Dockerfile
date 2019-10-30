@@ -1,16 +1,36 @@
 # Bind paths /root/.mycore/MIR/
-FROM tomcat:8-jre8
+FROM alpine/git as git
+ARG mir_branch=2019.06.x
+RUN mkdir /opt/mir
+WORKDIR /opt/
+RUN git --version && \
+    git clone https://github.com/MyCoRe-Org/mir.git
+WORKDIR /opt/mir
+RUN git checkout ${mir_branch}
+
+FROM maven:3-jdk-11 as maven
+RUN groupadd maven && \
+    useradd -m -g maven maven
+USER maven
+COPY --from=git --chown=maven:maven /opt/mir/ /opt/mir
+WORKDIR /opt/mir
+RUN mvn --version && \
+    mvn clean install -Djetty -DskipTests && \
+    rm -rf ~/.m2
+
+FROM tomcat:9-jre11
 EXPOSE 8080
 EXPOSE 8009
-ARG MIR_VERSION=2018.06.0.3-SNAPSHOT
+USER root
+WORKDIR /usr/local/tomcat/
 ARG PACKET_SIZE="65536"
-#ARG PACKET_SIZE="8192"
+ARG MIR_WAR_NAME=mir-2019.06.2-SNAPSHOT.war
 ENV JAVA_OPTS="-Xmx1g -Xms1g"
 ENV APP_CONTEXT="mir"
 COPY docker-entrypoint.sh /usr/local/bin/mir.sh
 RUN ["chmod", "+x", "/usr/local/bin/mir.sh"]
-RUN rm -rf /usr/local/tomcat/webapps/ROOT /usr/local/tomcat/webapps/*
-RUN curl "https://oss.sonatype.org/service/local/artifact/maven/content?r=snapshots&g=org.mycore.mir&a=mir-webapp&v=${MIR_VERSION}&e=war">webapps/mir.war
+RUN rm -rf /usr/local/tomcat/webapps/*
 RUN cat /usr/local/tomcat/conf/server.xml | sed "s/\"AJP\/1.3\"/\"AJP\/1.3\" packetSize=\"$PACKET_SIZE\"/g" > /usr/local/tomcat/conf/server.xml.new
 RUN mv /usr/local/tomcat/conf/server.xml.new /usr/local/tomcat/conf/server.xml
+COPY --from=maven --chown=root:root /opt/mir/mir-webapp/target/${MIR_WAR_NAME} /usr/local/tomcat/webapps/mir.war
 CMD ["/usr/local/bin/mir.sh"]
