@@ -3,7 +3,8 @@ This dockerfile creates a simple mir within a tomcat.
 
 Build parameters:
 
-- MIR_VERSION - The MIR which will be downloaded from Sonatype default: 2018.06.0.3-SNAPSHOT
+- MIR_BRANCH - The branch which will be build default: 2019.06.x
+- MIR_WAR_NAME - The war file which is the result of the build default: mir-2019.06.2-SNAPSHOT.war
 
 ENVIRONMENT Variables:
 
