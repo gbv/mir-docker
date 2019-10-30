@@ -1,12 +1,12 @@
 # Bind paths /root/.mycore/MIR/
 FROM alpine/git as git
-ARG mir_branch=2019.06.x
+ARG MIR_BRANCH=2019.06.x
 RUN mkdir /opt/mir
 WORKDIR /opt/
 RUN git --version && \
     git clone https://github.com/MyCoRe-Org/mir.git
 WORKDIR /opt/mir
-RUN git checkout ${mir_branch}
+RUN git checkout ${MIR_BRANCH}
 
 FROM maven:3-jdk-11 as maven
 RUN groupadd maven && \
