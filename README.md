@@ -1,4 +1,5 @@
 # Docker for Reposis
+
 This dockerfile creates a simple mir within a tomcat.
 
 Build parameters:
@@ -14,3 +15,8 @@ Mount point
 
 - /root/.mycore/context - see also $APP_CONTEXT
 
+## build and deploy
+```
+sudo docker build --pull --no-cache . -t vzgreposis/mir:lts
+sudo docker push  vzgreposis/mir:lts
+```
