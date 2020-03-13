@@ -24,7 +24,6 @@ EXPOSE 8009
 USER root
 WORKDIR /usr/local/tomcat/
 ARG PACKET_SIZE="65536"
-ARG MIR_WAR_NAME=mir-2019.06.2-SNAPSHOT.war
 ENV JAVA_OPTS="-Xmx1g -Xms1g"
 ENV APP_CONTEXT="mir"
 COPY docker-entrypoint.sh /usr/local/bin/mir.sh
@@ -32,5 +31,5 @@ RUN ["chmod", "+x", "/usr/local/bin/mir.sh"]
 RUN rm -rf /usr/local/tomcat/webapps/*
 RUN cat /usr/local/tomcat/conf/server.xml | sed "s/\"AJP\/1.3\"/\"AJP\/1.3\" packetSize=\"$PACKET_SIZE\"/g" > /usr/local/tomcat/conf/server.xml.new
 RUN mv /usr/local/tomcat/conf/server.xml.new /usr/local/tomcat/conf/server.xml
-COPY --from=maven --chown=root:root /opt/mir/mir-webapp/target/${MIR_WAR_NAME} /usr/local/tomcat/webapps/mir.war
+COPY --from=maven --chown=root:root /opt/mir/mir-webapp/target/mir-*.war /usr/local/tomcat/webapps/mir.war
 CMD ["/usr/local/bin/mir.sh"]
