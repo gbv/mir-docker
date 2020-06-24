@@ -30,6 +30,6 @@ COPY --from=bibutils --chown=root:root /usr/local/bin/* /usr/local/bin/
 COPY docker-entrypoint.sh /usr/local/bin/mir.sh
 RUN ["chmod", "+x", "/usr/local/bin/mir.sh"]
 RUN rm -rf /usr/local/tomcat/webapps/*
-RUN sed -ri "s/<\/Service>/<Connector protocol=\"AJP\/1.3\" packetSize=\"$PACKET_SIZE\" tomcatAuthentication=\"false\" scheme=\"https\" secretRequired=\"false\" encodedSolidusHandling=\"passthrough\" address=\"0.0.0.0\" port=\"8009\" redirectPort=\"8443\" \/>&/g" /usr/local/tomcat/conf/server.xml
+RUN sed -ri "s/<\/Service>/<Connector protocol=\"AJP\/1.3\" packetSize=\"$PACKET_SIZE\" tomcatAuthentication=\"false\" scheme=\"https\" secretRequired=\"false\" allowedRequestAttributesPattern=\".*\" encodedSolidusHandling=\"decode\" address=\"0.0.0.0\" port=\"8009\" redirectPort=\"8443\" \/>&/g" /usr/local/tomcat/conf/server.xml
 COPY --from=maven --chown=root:root /opt/mir/mir-webapp/target/mir-*.war /usr/local/tomcat/webapps/mir.war
 CMD ["/usr/local/bin/mir.sh"]
