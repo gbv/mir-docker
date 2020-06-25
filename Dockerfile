@@ -28,6 +28,8 @@ ENV JAVA_OPTS="-Xmx1g -Xms1g"
 ENV APP_CONTEXT="mir"
 COPY --from=bibutils --chown=root:root /usr/local/bin/* /usr/local/bin/
 COPY docker-entrypoint.sh /usr/local/bin/mir.sh
+RUN apt-get update && \
+    apt-get install vim-tiny -y
 RUN ["chmod", "+x", "/usr/local/bin/mir.sh"]
 RUN rm -rf /usr/local/tomcat/webapps/*
 RUN sed -ri "s/<\/Service>/<Connector protocol=\"AJP\/1.3\" packetSize=\"$PACKET_SIZE\" tomcatAuthentication=\"false\" scheme=\"https\" secretRequired=\"false\" allowedRequestAttributesPattern=\".*\" encodedSolidusHandling=\"decode\" address=\"0.0.0.0\" port=\"8009\" redirectPort=\"8443\" \/>&/g" /usr/local/tomcat/conf/server.xml
