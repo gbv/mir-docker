@@ -1,6 +1,6 @@
 # Bind paths /root/.mycore/MIR/
 FROM alpine/git as git
-ARG MIR_BRANCH=master
+ARG MIR_BRANCH=2020.06.x
 RUN mkdir /opt/mir
 WORKDIR /opt/
 RUN git --version && \
