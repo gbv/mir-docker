@@ -3,6 +3,7 @@ FROM alpine/git as git
 ARG MIR_BRANCH=2020.06.x
 RUN mkdir /opt/mir
 WORKDIR /opt/
+ADD https://api.github.com/repos/MyCoRe-Org/mir/git/refs/heads/$MIR_BRANCH mir-version.json
 RUN git --version && \
     git clone https://github.com/MyCoRe-Org/mir.git
 WORKDIR /opt/mir
