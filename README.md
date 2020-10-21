@@ -9,14 +9,21 @@ Build parameters:
 
 ENVIRONMENT Variables:
 
-- APP_CONTEXT - the mir.war will be renamed to $APP_CONTEXT.war default: mir
+- JDBC_NAME - The Username of the Database
+- JDBC_PASSWORD - The Password of the User
+- JDBC_DRIVER - The diver to use for JDBC
+- JDBC_URL - The URL to use for JDBC
+- APP_CONTEXT - The context of the webapp
+- SOLR_URL - The url to the solr server
+- SOLR_CORE - The name of the main solr core
 
 Mount point
 
-- /root/.mycore/context - see also $APP_CONTEXT
+- /mcr/home/ - the mycore home directory
+- /mcr/data/ - the mycore data directory
 
 ## build and deploy
 ```
-sudo docker build --pull --no-cache . -t vzgreposis/mir:lts
-sudo docker push  vzgreposis/mir:lts
+sudo docker build --build-arg MIR_BRANCH=2020.06.x -t vzgreposis/mir:2020.06.x .
+sudo docker push  vzgreposis/mir:2020.06.x
 ```
