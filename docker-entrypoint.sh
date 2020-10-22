@@ -12,11 +12,13 @@ MCR_SAVE_DIR_ESCAPED=$(echo "$MCR_SAVE_DIR" | sed 's/\//\\\//g')
 
 SOLR_URL_ESCAPED=$(echo "$SOLR_URL" | sed 's/\//\\\//g')
 SOLR_CORE_ESCAPED=$(echo "$SOLR_CORE" | sed 's/\//\\\//g')
+SOLR_CLASSIFICATION_CORE_ESCAPED=$(echo "$SOLR_CLASSIFICATION_CORE" | sed 's/\//\\\//g')
 
 JDBC_NAME_ESCAPED=$(echo "$JDBC_NAME" | sed 's/\//\\\//g')
 JDBC_PASSWORD_ESCAPED=$(echo "$JDBC_PASSWORD" | sed 's/\//\\\//g')
 JDBC_DRIVER_ESCAPED=$(echo "$JDBC_DRIVER" | sed 's/\//\\\//g')
 JDBC_URL_ESCAPED=$(echo "$JDBC_URL" | sed 's/\//\\\//g')
+HIBERNATE_SCHEMA_ESCAPED=$(echo "$JDBC_URL" | sed 's/\//\\\//g')
 
 MYCORE_PROPERTIES="${MCR_CONFIG_DIR}mycore.properties"
 PERSISTENCE_XML="${MCR_CONFIG_DIR}resources/META-INF/persistence.xml"
@@ -31,12 +33,38 @@ function downloadDriver {
 
 function setDockerValues() {
     echo "Set Docker Values to Config!"
-    sed -ri "s/#?(MCR\.Solr\.ServerURL=).+/\1${SOLR_URL_ESCAPED}/" "${MYCORE_PROPERTIES}"
-    sed -ri "s/#?(MCR\.Solr\.Core\.main\.Name=).+/\1${SOLR_CORE_ESCAPED}/" "${MYCORE_PROPERTIES}"
-    sed -ri "s/(name=\"javax.persistence.jdbc.user\" value=\").*(\")/\1${JDBC_NAME_ESCAPED}\2/" "${PERSISTENCE_XML}"
-    sed -ri "s/(name=\"javax.persistence.jdbc.password\" value=\").*(\")/\1${JDBC_PASSWORD_ESCAPED}\2/" "${PERSISTENCE_XML}"
-    sed -ri "s/(name=\"javax.persistence.jdbc.driver\" value=\").*(\")/\1${JDBC_DRIVER_ESCAPED}\2/" "${PERSISTENCE_XML}"
-    sed -ri "s/(name=\"javax.persistence.jdbc.url\" value=\").*(\")/\1${JDBC_URL_ESCAPED}\2/" "${PERSISTENCE_XML}"
+    if [ -n "${SOLR_URL}" ]; then
+      sed -ri "s/#?(MCR\.Solr\.ServerURL=).+/\1${SOLR_URL_ESCAPED}/" "${MYCORE_PROPERTIES}";
+    fi
+
+    if [ -n "${SOLR_CORE}" ]; then
+      sed -ri "s/#?(MCR\.Solr\.Core\.main\.Name=).+/\1${SOLR_CORE_ESCAPED}/" "${MYCORE_PROPERTIES}";
+    fi
+
+    if [ -n "${SOLR_CLASSIFICATION_CORE}" ]; then
+      sed -ri "s/#?(MCR\.Solr\.Core\.classification\.Name=).+/\1${SOLR_CLASSIFICATION_CORE_ESCAPED}/" "${MYCORE_PROPERTIES}"
+    fi
+
+    if [ -n "${JDBC_NAME}" ]; then
+      sed -ri "s/(name=\"javax.persistence.jdbc.user\" value=\").*(\")/\1${JDBC_NAME_ESCAPED}\2/" "${PERSISTENCE_XML}"
+    fi
+
+    if [ -n "${JDBC_PASSWORD}" ]; then
+      sed -ri "s/(name=\"javax.persistence.jdbc.password\" value=\").*(\")/\1${JDBC_PASSWORD_ESCAPED}\2/" "${PERSISTENCE_XML}"
+    fi
+
+    if [ -n "${JDBC_DRIVER}" ]; then
+      sed -ri "s/(name=\"javax.persistence.jdbc.driver\" value=\").*(\")/\1${JDBC_DRIVER_ESCAPED}\2/" "${PERSISTENCE_XML}"
+    fi
+
+    if [ -n "${JDBC_URL}" ]; then
+      sed -ri "s/(name=\"javax.persistence.jdbc.url\" value=\").*(\")/\1${JDBC_URL_ESCAPED}\2/" "${PERSISTENCE_XML}"
+    fi
+
+    if [ -n "${SOLR_CLASSIFICATION_CORE}" ]; then
+      sed -ri "s/(name=\"hibernate.default_schema\" value=\").*(\")/\1${HIBERNATE_SCHEMA_ESCAPED}\2/" "${PERSISTENCE_XML}"
+    fi
+
     sed -ri "s/(name=\"hibernate.hbm2ddl.auto\" value=\").*(\")/\1update\2/" "${PERSISTENCE_XML}"
 
     if  grep -q "MCR.datadir=" "${MYCORE_PROPERTIES}" ; then
@@ -59,9 +87,6 @@ function setDockerValues() {
       com.mysql.jdbc.Driver) downloadDriver "https://repo.maven.apache.org/maven2/mysql/mysql-connector-java/8.0.19/mysql-connector-java-8.0.19.jar";;
     esac
 
-    sed -ri "s/<mapping-file>META-INF\/mycore-viewer-mappings.xml<\/mapping-file>/&<mapping-file>META-INF\/mir-module-mappings.xml<\/mapping-file>/" "${MCR_CONFIG_DIR}resources/META-INF/persistence.xml"
-    sed -ri "s/(<\/properties>)/<property name=\"hibernate\.connection\.provider_class\" value=\"org\.hibernate\.connection\.C3P0ConnectionProvider\" \/>\n<property name=\"hibernate\.c3p0\.min_size\" value=\"2\" \/>\n<property name=\"hibernate\.c3p0\.max_size\" value=\"50\" \/>\n<property name=\"hibernate\.c3p0\.acquire_increment\" value=\"2\" \/>\n<property name=\"hibernate\.c3p0\.max_statements\" value=\"30\" \/>\n<property name=\"hibernate\.c3p0\.timeout\" value=\"1800\" \/>\n\1/" "${MCR_CONFIG_DIR}resources/META-INF/persistence.xml"
-
     mkdir -p "${MCR_CONFIG_DIR}lib"
 
     downloadDriver https://repo1.maven.org/maven2/org/hibernate/hibernate-c3p0/5.3.9.Final/hibernate-c3p0-5.3.9.Final.jar
@@ -73,6 +98,8 @@ function setUpMyCoRe {
     echo "Set up MyCoRe!"
     /opt/mir/mir/bin/mir.sh create configuration directory
     setDockerValues
+    sed -ri "s/<mapping-file>META-INF\/mycore-viewer-mappings.xml<\/mapping-file>/&<mapping-file>META-INF\/mir-module-mappings.xml<\/mapping-file>/" "${MCR_CONFIG_DIR}resources/META-INF/persistence.xml"
+    sed -ri "s/(<\/properties>)/<property name=\"hibernate\.connection\.provider_class\" value=\"org\.hibernate\.connection\.C3P0ConnectionProvider\" \/>\n<property name=\"hibernate\.c3p0\.min_size\" value=\"2\" \/>\n<property name=\"hibernate\.c3p0\.max_size\" value=\"50\" \/>\n<property name=\"hibernate\.c3p0\.acquire_increment\" value=\"2\" \/>\n<property name=\"hibernate\.c3p0\.max_statements\" value=\"30\" \/>\n<property name=\"hibernate\.c3p0\.timeout\" value=\"1800\" \/>\n\1/" "${MCR_CONFIG_DIR}resources/META-INF/persistence.xml"
     /opt/mir/mir/bin/setup.sh
 }
 

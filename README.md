@@ -16,6 +16,7 @@ ENVIRONMENT Variables:
 - APP_CONTEXT - The context of the webapp
 - SOLR_URL - The url to the solr server
 - SOLR_CORE - The name of the main solr core
+- SOLR_CLASSIFICATION_CORE - The name of the classification solr core
 
 Mount point
 
