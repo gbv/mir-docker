@@ -73,6 +73,12 @@ function setDockerValues() {
           echo "MCR.datadir=${MCR_DATA_DIR}">>"${MYCORE_PROPERTIES}"
     fi
 
+    if grep -q "MCR.Solr.NestedDocuments=" "${MYCORE_PROPERTIES}" ; then
+      sed -ri "s/#?(MCR\.Solr\.NestedDocuments=).+/\1true/" "${MYCORE_PROPERTIES}"
+    else
+      echo "MCR.Solr.NestedDocuments=true">>"${MYCORE_PROPERTIES}";
+    fi
+
     if  grep -q "MCR.Save.FileSystem=" "${MYCORE_PROPERTIES}" ; then
           sed -ri "s/#?(MCR\.Save\.FileSystem=).+/\1${MCR_SAVE_DIR_ESCAPED}/" "${MYCORE_PROPERTIES}"
     else
