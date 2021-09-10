@@ -1,6 +1,6 @@
 # Bind paths /root/.mycore/MIR/
 FROM alpine/git as git
-ARG MIR_BRANCH=master
+ARG MIR_BRANCH=2021.06.x
 RUN mkdir /opt/mir
 WORKDIR /opt/
 ADD https://api.github.com/repos/MyCoRe-Org/mir/git/refs/heads/$MIR_BRANCH mir-version.json
