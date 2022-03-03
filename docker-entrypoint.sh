@@ -24,7 +24,7 @@ MYCORE_PROPERTIES="${MCR_CONFIG_DIR}mycore.properties"
 PERSISTENCE_XML="${MCR_CONFIG_DIR}resources/META-INF/persistence.xml"
 
 function downloadDriver {
-  FILENAME=$(basename $1)
+  FILENAME=$(basename "$1")
   if [[ ! -f "${MCR_CONFIG_DIR}lib/${FILENAME}" ]]
   then
     curl -o "${MCR_CONFIG_DIR}lib/${FILENAME}" "$1"
@@ -117,5 +117,5 @@ sed -ri "s/(-DMCR.ConfigDir=).+( \\\\)/\-DMCR.ConfigDir=${MCR_CONFIG_DIR_ESCAPED
 rm -rf /usr/local/tomcat/webapps/*
 cp /opt/mir/mir.war "/usr/local/tomcat/webapps/${APP_CONTEXT}.war"
 
-export JAVA_OPTS="-DMCR.ConfigDir=${MCR_CONFIG_DIR} -Xmx${XMX} -Xms${XMS}"
+export JAVA_OPTS="-DMCR.ConfigDir=${MCR_CONFIG_DIR} -Xmx${XMX} -Xms${XMS} -XX:+CrashOnOutOfMemoryError"
 catalina.sh run
